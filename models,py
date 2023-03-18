@@ -1,0 +1,74 @@
+from sqlalchemy import Column, DateTime, Integer, String, Date, ForeignKey, Boolean
+from sqlalchemy.orm import relationship
+from sqlalchemy.ext.declarative import declarative_base
+
+Base = declarative_base()
+
+class Veterinaria(Base):
+    __tablename__ = 'veterinaria'
+
+    id = Column(Integer, primary_key=True, index=True)
+    nombre = Column(String, unique=True)
+    direccion = Column(String)
+    telefono = Column(String)
+    correo_electronico = Column(String, unique=True)
+
+
+class DueñoMascota(Base):
+    __tablename__ = 'dueño_mascota'
+
+    id = Column(Integer, primary_key=True, index=True)
+    nombre = Column(String)
+    telefono = Column(String)
+    correo_electronico = Column(String, unique=True)
+    mascotas = relationship("Mascota", back_populates="dueño")
+    veterinaria_id = Column(Integer, ForeignKey('veterinaria.id'))
+
+
+class Mascota(Base):
+    __tablename__ = 'mascota'
+
+    id = Column(Integer, primary_key=True, index=True)
+    nombre = Column(String)
+    especie = Column(String)
+    raza = Column(String)
+    sexo = Column(String)
+    fecha_nacimiento = Column(DateTime)
+    dueño_id = Column(Integer, ForeignKey('dueño_mascota.id'))
+    fichas_medicas = relationship("FichaMedica", back_populates="mascota")
+    veterinaria_id = Column(Integer, ForeignKey('veterinaria.id'))
+
+
+class Veterinario(Base):
+    __tablename__ = 'veterinario'
+
+    id = Column(Integer, primary_key=True, index=True)
+    nombre = Column(String)
+    telefono = Column(String)
+    correo_electronico = Column(String, unique=True)
+    agendamientos = relationship("Agendamiento", back_populates="veterinario")
+    veterinaria_id = Column(Integer, ForeignKey('veterinaria.id'))
+
+
+class Agendamiento(Base):
+    __tablename__ = 'agendamiento'
+
+    id = Column(Integer, primary_key=True, index=True)
+    fecha_hora = Column(DateTime)
+    veterinario_id = Column(Integer, ForeignKey('veterinario.id'))
+    veterinaria_id = Column(Integer, ForeignKey('veterinaria.id'))
+
+
+class FichaMedica(Base):
+    __tablename__ = 'ficha_medica'
+
+    id = Column(Integer, primary_key=True, index=True)
+    fecha_consulta = Column(DateTime)
+    motivo_consulta = Column(String)
+    diagnostico = Column(String)
+    tratamiento = Column(String)
+    observaciones = Column(String)
+    mascota_id = Column(Integer, ForeignKey('mascota.id'))
+    veterinario_id = Column(Integer, ForeignKey('veterinario.id'))
+    veterinaria_id = Column(Integer, ForeignKey('veterinaria.id'))
+
